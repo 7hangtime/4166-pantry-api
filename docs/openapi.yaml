@@ -7,7 +7,9 @@ info:
 
 servers:
   - url: http://localhost:3000/api
-
+    description: local url
+  - url: https://final-pantry-api.onrender.com/api
+    description: render url
 tags:
   - name: Auth
     description: User authentication endpoints
