@@ -2,14 +2,14 @@ openapi: 3.0.3
 
 info:
   title: Smart Pantry API
-  version: 1.0.0
+  version: 1.0.0s
   description: API documentation for Smart Pantry
 
 servers:
-  - url: http://localhost:3000/api
-    description: local url
   - url: https://final-pantry-api.onrender.com/api
     description: render url
+  - url: http://localhost:3000/api
+    description: local urls
 tags:
   - name: Auth
     description: User authentication endpoints
