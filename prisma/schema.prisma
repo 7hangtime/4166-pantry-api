@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+ id Int @id @default(autoincrement())
+ username String @unique
+ password String
+ role Role @default(USER)
+ pantryItems PantryItem[]
+ @@map("users")
+}
+
+model Ingredient {
+ id Int @id @default(autoincrement())
+ name String @unique
+ category String
+ defaultUnit String @map("default_unit")
+ pantryItems PantryItem[]
+ recipeIngredients RecipeIngredient[]
+ @@map("ingredients")
+}
+
+model Recipe {
+ id Int @id @default(autoincrement())
+ title String
+ instructions String
+ prepTime Int @map("prep_time")
+ cookTime Int @map("cook_time")
+ recipeIngredients RecipeIngredient[]
+ @@map("recipes")
+}
+
+model PantryItem {
+ id Int @id @default(autoincrement())
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ userId Int @map("user_id")
+ ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+ ingredientId Int @map("ingredient_id")
+ quantity Float
+ unit String
+ @@unique([userId, ingredientId])
+ @@map("pantry_items")
+}
+
+model RecipeIngredient {
+ id Int @id @default(autoincrement())
+ recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+ recipeId Int @map("recipe_id")
+ ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+ ingredientId Int @map("ingredient_id")
+ amount Float
+ unit String
+ @@unique([recipeId, ingredientId])
+ @@map("recipe_ingredients")
+}
+
+enum Role {
+  USER
+  ADMIN
+}

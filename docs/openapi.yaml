@@ -1,0 +1,710 @@
+openapi: 3.0.3
+
+info:
+  title: Smart Pantry API
+  version: 1.0.0
+  description: API documentation for Smart Pantry
+
+servers:
+  - url: http://localhost:3000/api
+
+tags:
+  - name: Auth
+    description: User authentication endpoints
+  - name: Ingredients
+    description: Operations related to ingredients
+  - name: Recipes
+    description: Operations related to recipes
+  - name: Pantry Items
+    description: Operations related to user pantry items
+
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      description: Create a new user account with username and password.
+      requestBody:
+        description: User signup credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthCredentials"
+      responses:
+        "201":
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/InvalidUserInput"
+        "409":
+          description: Username already exists
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticate user
+      description: Authenticate a user and return an access token.
+      requestBody:
+        description: User login credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthCredentials"
+      responses:
+        "200":
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                example:
+                  accessToken: "eyJhbGciOiJIUzI1NiIs..."
+        "400":
+          $ref: "#/components/responses/InvalidUserInput"
+        "401":
+          description: Invalid credentials
+
+  /ingredients:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Ingredients
+      summary: Get all ingredients
+      description: Retrieve a list of all ingredients.
+      responses:
+        "200":
+          description: A list of ingredients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ingredient"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Ingredients
+      summary: Create new ingredient
+      description: Create a new ingredient. Requires ADMIN role.
+      requestBody:
+        description: Ingredient object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngredientInput"
+      responses:
+        "201":
+          description: Ingredient successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ingredient"
+        "400":
+          $ref: "#/components/responses/InvalidIngredientInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: Ingredient already exists
+
+  /ingredients/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Ingredients
+      summary: Get ingredient by id
+      description: Retrieve a single ingredient by id.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: A single ingredient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ingredient"
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Ingredients
+      summary: Update ingredient by id
+      description: Update an existing ingredient. Requires ADMIN role.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        description: Fields to update for ingredient
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngredientInput"
+      responses:
+        "200":
+          description: Ingredient successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ingredient"
+        "400":
+          $ref: "#/components/responses/InvalidIngredientInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Ingredients
+      summary: Delete ingredient by id
+      description: Delete an existing ingredient. Requires ADMIN role.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "204":
+          description: Ingredient successfully deleted
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /recipes:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Recipes
+      summary: Get all recipes
+      description: Retrieve a list of all recipes.
+      responses:
+        "200":
+          description: A list of recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recipe"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Recipes
+      summary: Create new recipe
+      description: Create a new recipe.
+      requestBody:
+        description: Recipe object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeInput"
+      responses:
+        "201":
+          description: Recipe successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "400":
+          $ref: "#/components/responses/InvalidRecipeInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /recipes/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Recipes
+      summary: Get recipe by id
+      description: Retrieve a single recipe by id.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: A single recipe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Recipes
+      summary: Update recipe by id
+      description: Update an existing recipe.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        description: Fields to update for recipe
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeInput"
+      responses:
+        "200":
+          description: Recipe successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "400":
+          $ref: "#/components/responses/InvalidRecipeInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Recipes
+      summary: Delete recipe by id
+      description: Delete an existing recipe.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "204":
+          description: Recipe successfully deleted
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /pantry-items:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Pantry Items
+      summary: Get all pantry items
+      description: Retrieve all pantry items for the logged-in user.
+      responses:
+        "200":
+          description: A list of pantry items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PantryItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Pantry Items
+      summary: Create new pantry item
+      description: Add an ingredient to the logged-in user's pantry.
+      requestBody:
+        description: Pantry item object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PantryItemInput"
+      responses:
+        "201":
+          description: Pantry item successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PantryItem"
+        "400":
+          $ref: "#/components/responses/InvalidPantryItemInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Ingredient does not exist
+        "409":
+          description: Pantry item already exists for this user
+
+  /pantry-items/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Pantry Items
+      summary: Get pantry item by id
+      description: Retrieve a single pantry item by id.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: A single pantry item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PantryItem"
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Pantry Items
+      summary: Update pantry item by id
+      description: Update an existing pantry item.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        description: Fields to update for pantry item
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PantryItemInput"
+      responses:
+        "200":
+          description: Pantry item successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PantryItem"
+        "400":
+          $ref: "#/components/responses/InvalidPantryItemInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Pantry Items
+      summary: Delete pantry item by id
+      description: Remove an item from the logged-in user's pantry.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "204":
+          description: Pantry item successfully deleted
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        username:
+          type: string
+          example: david
+        role:
+          type: string
+          example: USER
+
+    AuthCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      example:
+        username: david
+        password: password123
+
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: Eggs
+        category:
+          type: string
+          example: Protein
+        defaultUnit:
+          type: string
+          example: count
+
+    IngredientInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Eggs
+        category:
+          type: string
+          example: Protein
+        defaultUnit:
+          type: string
+          example: count
+
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        title:
+          type: string
+          example: Scrambled Eggs
+        instructions:
+          type: string
+          example: Beat eggs and cook them in a pan.
+        prepTime:
+          type: integer
+          example: 5
+        cookTime:
+          type: integer
+          example: 5
+
+    RecipeInput:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Scrambled Eggs
+        instructions:
+          type: string
+          example: Beat eggs and cook them in a pan.
+        prepTime:
+          type: integer
+          example: 5
+        cookTime:
+          type: integer
+          example: 5
+
+    PantryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        userId:
+          type: integer
+          readOnly: true
+          example: 1
+        ingredientId:
+          type: integer
+          example: 1
+        quantity:
+          type: number
+          example: 12
+        unit:
+          type: string
+          example: count
+
+    PantryItemInput:
+      type: object
+      properties:
+        ingredientId:
+          type: integer
+          example: 1
+        quantity:
+          type: number
+          example: 12
+        unit:
+          type: string
+          example: count
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      description: Resource id
+      schema:
+        type: integer
+        example: 1
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+          example:
+            error: "Resource not found"
+
+    InvalidId:
+      description: Invalid ID
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+          example:
+            errors: [ "ID must be a positive integer" ]
+
+    Unauthorized:
+      description: Client is not authenticated
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+          example:
+            error: "Not authenticated. Please provide a valid token."
+
+    Forbidden:
+      description: Authenticated user is not allowed to perform this action
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+          example:
+            error: "Forbidden: insufficient permission."
+
+    InvalidUserInput:
+      description: Bad request due to invalid user data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+          example:
+            errors:
+              - "Username is required"
+              - "Password is required"
+
+    InvalidIngredientInput:
+      description: Bad request due to invalid ingredient data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+          example:
+            errors:
+              - "Name is required"
+              - "Category is required"
+              - "Default unit is required"
+
+    InvalidRecipeInput:
+      description: Bad request due to invalid recipe data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+          example:
+            errors:
+              - "Title is required"
+              - "Instructions are required"
+
+    InvalidPantryItemInput:
+      description: Bad request due to invalid pantry item data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+          example:
+            errors:
+              - "Ingredient ID is required"
+              - "Quantity is required"
+              - "Unit is required"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
