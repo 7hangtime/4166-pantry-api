@@ -36,6 +36,10 @@ app.get('/', (req, res) => {
     res.status(200).json({ message: 'Pantry API is running' });
 });
 
+app.get('/api', (req, res) => {
+    res.status(200).json({ message: 'Pantry API is running' });
+});
+
 app.use((req, res, next) => {
     const err = new Error('Not Found');
     err.status = 404;
