@@ -11,8 +11,8 @@ import {
 const router = express.Router();
 
 router.post('/', authenticate, createRecipeHandler);
-router.get('/', authenticate, getRecipesHandler);
-router.get('/:id', authenticate, getRecipeByIdHandler);
+router.get('/', getRecipesHandler);
+router.get('/:id', getRecipeByIdHandler);
 router.put('/:id', authenticate, updateRecipeHandler);
 router.delete('/:id', authenticate, deleteRecipeHandler);
 

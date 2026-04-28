@@ -12,8 +12,8 @@ import {
 const router = express.Router();
 
 router.post('/', authenticate, authorizeRoles('ADMIN'), createIngredientHandler);
-router.get('/', authenticate, getIngredientsHandler);
-router.get('/:id', authenticate, getIngredientByIdHandler);
+router.get('/', getIngredientsHandler);
+router.get('/:id', getIngredientByIdHandler);
 router.put('/:id', authenticate, authorizeRoles('ADMIN'), updateIngredientHandler);
 router.delete('/:id', authenticate, authorizeRoles('ADMIN'), deleteIngredientHandler);
 

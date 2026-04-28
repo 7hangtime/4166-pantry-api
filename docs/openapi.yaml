@@ -78,8 +78,6 @@ paths:
 
   /ingredients:
     get:
-      security:
-        - bearerAuth: []
       tags:
         - Ingredients
       summary: Get all ingredients
@@ -128,8 +126,6 @@ paths:
 
   /ingredients/{id}:
     get:
-      security:
-        - bearerAuth: []
       tags:
         - Ingredients
       summary: Get ingredient by id
@@ -205,8 +201,6 @@ paths:
 
   /recipes:
     get:
-      security:
-        - bearerAuth: []
       tags:
         - Recipes
       summary: Get all recipes
@@ -251,8 +245,6 @@ paths:
 
   /recipes/{id}:
     get:
-      security:
-        - bearerAuth: []
       tags:
         - Recipes
       summary: Get recipe by id
