@@ -1,4 +1,5 @@
 import express from 'express';
+import 'dotenv/config';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import yaml from 'js-yaml';
@@ -30,6 +31,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/ingredients', ingredientRoutes);
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/pantry-items', pantryItemRoutes);
+
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'Pantry API is running' });
+});
 
 app.use((req, res, next) => {
     const err = new Error('Not Found');
